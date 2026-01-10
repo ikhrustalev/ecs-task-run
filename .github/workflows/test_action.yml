@@ -24,6 +24,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Test fire and forget
+        id: async
+        uses: ./
+        with:
+          cluster_arn: ${{ vars.AWS_ECS_CLUSTER_ARN }}
+          service_name: ${{ vars.AWS_ECS_SERVICE_NAME }}
+          command: echo "Async"
+          wait: false
+
       - name: Test basic command
         uses: ./
         with:
@@ -39,15 +48,6 @@ jobs:
           command: |
             echo "Step 1"
             echo "Step 2"
-
-      - name: Test fire and forget
-        id: async
-        uses: ./
-        with:
-          cluster_arn: ${{ vars.AWS_ECS_CLUSTER_ARN }}
-          service_name: ${{ vars.AWS_ECS_SERVICE_NAME }}
-          command: echo "Async"
-          wait: false
 
       - name: Verify outputs
         run: |

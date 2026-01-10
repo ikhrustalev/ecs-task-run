@@ -88,15 +88,18 @@ runs:
     - name: Parse command into container overrides
       id: parse-command
       shell: bash
+      env:
+        COMMAND: ${{ inputs.command }}
+        SHELL_OPT: ${{ inputs.shell }}
       run: |
         # Convert command string to JSON array
-        if [ "${{ inputs.shell }}" == "false" ]; then
-          IFS=' ' read -ra CMD_ARRAY <<< "${{ inputs.command }}"
+        if [ "$SHELL_OPT" == "false" ]; then
+          IFS=' ' read -ra CMD_ARRAY <<< "$COMMAND"
           COMMAND_JSON=$(printf '%s\n' "${CMD_ARRAY[@]}" | jq -R . | jq -s .)
-        elif [ "${{ inputs.shell }}" == "true" ]; then
-          COMMAND_JSON='[ "/bin/sh", "-c", "${{ inputs.command }}" ]'
+        elif [ "$SHELL_OPT" == "true" ]; then
+          COMMAND_JSON=$(jq -n --arg cmd "$COMMAND" '["/bin/sh", "-c", $cmd]')
         else
-          COMMAND_JSON='[ "${{ inputs.shell }}", "-c", "${{ inputs.command }}" ]'
+          COMMAND_JSON=$(jq -n --arg shell "$SHELL_OPT" --arg cmd "$COMMAND" '[$shell, "-c", $cmd]')
         fi
 
         # Get container name from task definition
