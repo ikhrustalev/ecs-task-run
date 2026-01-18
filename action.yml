@@ -259,7 +259,7 @@ runs:
             break
           fi
 
-          sleep 5
+          sleep 3
         done
 
         # Check task exit code
